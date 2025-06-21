@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api1
+  namespace: monitor-davydov
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api1
+  template:
+    metadata:
+      labels:
+        app: api1
+    spec:
+      serviceAccountName: tracing-sa
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: api1
+          image: registry.infrateam.tech/davydov/jaeger-api1:1.2
+          ports:
+            - containerPort: 5001
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+          readinessProbe:
+            tcpSocket:
+              port: 4317
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            failureThreshold: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+        - name: otel-collector
+          image: otel/opentelemetry-collector:latest
+          args: ["--config=/etc/otel-collector-config/otel-collector-config.yaml"]
+          ports:
+            - containerPort: 4317
+            - containerPort: 4318
+          volumeMounts:
+            - name: otel-config
+              mountPath: /etc/otel-collector-config
+              readOnly: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+
+      volumes:
+        - name: otel-config
+          configMap:
+            name: otel-collector-config

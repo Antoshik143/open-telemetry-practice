@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api1
+  namespace: monitor-davydov
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api1
+  template:
+    metadata:
+      labels:
+        app: api1
+    spec:
+      serviceAccountName: tracing-sa
+      imagePullSecrets:
+        - name: regcred
+      containers:
+      - name: api1
+        image: registry.infrateam.tech/davydov/jaeger-api1:1.1
+        ports:
+        - containerPort: 5001
+        env:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector.monitor-davydov.svc.cluster.local:4317"

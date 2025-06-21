@@ -1,0 +1,8 @@
+# tracing-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tracing-sa
+  namespace: monitor-davydov
+imagePullSecrets:
+- name: regcred

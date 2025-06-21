@@ -1,0 +1,14 @@
+phantom:
+  address: 78.140.241.87:30501 # [Target's address]:[target's port]
+  uris:
+    - /api1
+  headers:
+    - "Host: 78.140.241.87"
+    - "User-Agent: Anton yndx-tank"
+  load_profile:
+    load_type: rps # schedule load by defining requests per second
+    schedule: line(1, 100, 10m) # starting from 1rps growing linearly to 100rps during 10 minutes
+console:
+  enabled: true # enable console output
+telegraf:
+  enabled: false # let's disable telegraf monitoring for the first time
